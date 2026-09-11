@@ -92,46 +92,35 @@
     }
 
     .contact-list {
-      margin-top: 22px;
+      margin-top: 20px;
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      align-items: center;
+      gap: 6px 18px;
+      font-size: 0.95rem;
     }
 
     .contact-list a,
     .contact-list span {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 0.9rem;
+      color: var(--accent);
       text-decoration: none;
-      transition: transform 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+      border-bottom: 1px solid rgba(37,99,235,0.35);
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .contact-list span {
+      color: var(--muted);
+      border-bottom: none;
     }
 
     .contact-list a:hover {
-      transform: translateY(-1px);
-      background: #eff6ff;
-      border-color: rgba(37,99,235,0.3);
-      color: var(--accent);
+      color: #1d4ed8;
+      border-bottom-color: #1d4ed8;
     }
 
     .contact-list a.resume-cta {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
       font-weight: 700;
       cursor: pointer;
-    }
-
-    .contact-list a.resume-cta:hover {
-      background: #1d4ed8;
-      color: #fff;
-      border-color: #1d4ed8;
     }
 
     .content {
@@ -883,11 +872,11 @@
           <p>I previously studied at the <a href="https://en.wikipedia.org/wiki/South_China_University_of_Technology" target="_blank" rel="noopener">South China University of Technology</a>, and have been advised by <a href="https://www.leizhang.org/" target="_blank" rel="noopener">Lei Zhang</a> as an external advisor since then.</p>
         </div>
         <div class="contact-list">
-          <a href="mailto:xiao.jeremy.h1@gmail.com">&#9993; xiao.jeremy.h1@gmail.com</a>
-          <span>&#9742; +1 857-788-6299</span>
-          <a href="https://github.com/Hu-xiao-max" target="_blank" rel="noopener">&#128187; GitHub</a>
-          <a href="https://hu-xiao-max.github.io/video.xiaohu/" target="_blank" rel="noopener">&#9654; Project Videos</a>
-          <a href="#" class="resume-cta" onclick="showResume(); return false;">&#128196; View Resume</a>
+          <a data-user="xiao.jeremy.h1" data-domain="gmail.com">xiao.jeremy.h1 RT gmail.com</a>
+          <a href="https://github.com/Hu-xiao-max" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://x.com/huxiao93612565" target="_blank" rel="noopener">X</a>
+          <a href="https://hu-xiao-max.github.io/video.xiaohu/" target="_blank" rel="noopener">Project Videos</a>
+          <a href="#" class="resume-cta" onclick="showResume(); return false;">View Resume</a>
         </div>
       </div>
       <div class="hero-media">
@@ -1014,7 +1003,7 @@
 
       <footer class="site-footer">
         &copy; 2026 Xiao Hu &middot; Built with care &middot;
-        <a href="mailto:xiao.jeremy.h1@gmail.com">Contact</a>
+        <a data-user="xiao.jeremy.h1" data-domain="gmail.com">Contact</a>
       </footer>
     </main>
   </div>
@@ -1233,6 +1222,17 @@
 
     setupLazyVideoPlayback();
 
+    // 页面上邮箱以 "dot / RT" 形式展示，真实地址只在运行时拼出，避免出现在静态 HTML 里
+    function setupEmailLinks() {
+      document.querySelectorAll('a[data-user][data-domain]').forEach(function (el) {
+        const address = el.dataset.user + '@' + el.dataset.domain;
+        el.setAttribute('href', 'mailto:' + address);
+        el.dataset.resumeLabel = address;
+      });
+    }
+
+    setupEmailLinks();
+
     /**
      * ── Resume 内容单一数据源 ──
      * 简历所有条目均从主界面 DOM（及 publications 数组）实时读取生成，
@@ -1243,6 +1243,8 @@
     }
 
     function cleanContact(el) {
+      // 简历里用真实地址，而非页面上的 "dot / RT" 展示形式
+      if (el.dataset && el.dataset.resumeLabel) return el.dataset.resumeLabel;
       // 去掉开头的图标符号/空白（如 "✉ email" → "email"，"☎ +1..." → "+1..."）
       return txt(el).replace(/^[^\w+]+/, '').trim();
     }
